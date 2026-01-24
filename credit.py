@@ -6,6 +6,7 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix,f1_score,recall_score,precision_score
+from imblearn.over_sampling import RandomOverSampler
 
 df=pd.read_csv('credit_card.csv')
 
@@ -23,7 +24,9 @@ encode=ore.fit_transform(le)
 encoded_df=pd.DataFrame(encode,columns=ore.get_feature_names_out(le.columns))
 
 X=pd.concat([x,encoded_df],axis=1)
-x_train,x_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)   
+rus=RandomOverSampler()
+rx,ry=rus.fit_resample(X,y)
+x_train,x_test,y_train,y_test=train_test_split(rx,ry,test_size=0.2,random_state=42)   
 
 knc=KNeighborsClassifier(n_neighbors=3)
 knc.fit(x_train,y_train)
@@ -31,6 +34,7 @@ knc.fit(x_train,y_train)
 print("Training Accuracy:",knc.score(x_train,y_train))
 print("Testing Accuracy:",knc.score(x_test,y_test))
 y_pred=knc.predict(x_test)
+
 print(classification_report(y_test,y_pred))
 print("F1 Macro:", f1_score(y_test, y_pred, average='macro'))
 print("Recall Macro:", recall_score(y_test, y_pred, average='macro'))
